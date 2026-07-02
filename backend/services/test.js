@@ -619,7 +619,7 @@ var addExamQuestion = async (req, res, next) => {
   }
 
   try {
-    const { testId, body, option1, option2, option3, option4, answer, marks, targetSubject } = req.body;
+    const { testId, body, option1, option2, option3, option4, answer, marks, targetSubject, explanation } = req.body;
     
     // Process uploaded images
     let bodyImage = null;
@@ -642,6 +642,7 @@ var addExamQuestion = async (req, res, next) => {
       answer: answer,
       marks: parseInt(marks),
       subject: targetSubject, // Need a subject for schema validation
+      explanation: explanation || '',
       createdBy: req.user._id,
       status: true
     });
