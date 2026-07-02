@@ -1,9 +1,9 @@
 {
     "mongodb": {
-        "connectionString": "mongodb+srv://admin:dBpassword@cluster0.f685bve.mongodb.net/Online-Exam-Portal?retryWrites=true&w=majority"
+        "connectionString": "mongodb://localhost:27017/online-exam-portal"
     },
     "jwt": {
-        "secret" : "Examination Portal Application"
+        "secret" : "replace_this_secret_in_production"
     },
     "mail-credentials" : {
         "userid" :"<smtp server userId>",
