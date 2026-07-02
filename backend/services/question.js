@@ -399,7 +399,9 @@ var getQuestionAnswerByIds = (req,res,next) => {
               options : ques[q].options,
               marks : ques[q].marks,
               answer : ques[q].answer,
-              explanation : ques[q].explanation
+              explanation : ques[q].explanation,
+              bodyImage: ques[q].bodyImage,
+              optionImages: ques[q].optionImages
             })
             break;
           }
