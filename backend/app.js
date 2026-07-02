@@ -22,7 +22,6 @@ app.use(function(req, res, next) {
 
 
 const corsOptions = {
-    origin: '*'
     origin: [
      'https://exam-portal-admin-tias.vercel.app', 
      'https://exam-portal-users.vercel.app',
