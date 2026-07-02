@@ -66,7 +66,8 @@ class CreateTestForm extends React.Component {
       targetClass: "",
       assignedStudents: [],
       createdTestId: null,
-      setupStep: 0 // 0: Form, 1: Setup, 2: Preview
+      setupStep: 0, // 0: Form, 1: Setup, 2: Preview
+      isSubmitting: false
     }
   }
 
@@ -213,6 +214,7 @@ class CreateTestForm extends React.Component {
 
   handleSubmit(event) {
     event.preventDefault();
+    if (this.state.isSubmitting) return;
     var dur = this.timeStringtoMs(this.state.duration);
     if(this.state.subjects.length<1) {
       this.sendAlert('error','Invalid input','select at least one subject');
@@ -229,8 +231,9 @@ class CreateTestForm extends React.Component {
     } else if(!this.state.targetClass) {
       this.sendAlert('error','Invalid input','select a target class');
     } else {
+      this.setState({ isSubmitting: true });
       this.props.createTestAction({...this.state, duration: dur/1000}, (testId) => {
-        this.setState({ createdTestId: testId, setupStep: 1 });
+        this.setState({ createdTestId: testId, setupStep: 1, isSubmitting: false });
       });
     }
   }
@@ -400,8 +403,9 @@ class CreateTestForm extends React.Component {
           color="primary"
           type='submit'
           className={this.props.classes.btn}
+          disabled={this.state.isSubmitting}
         >
-          Create test
+          {this.state.isSubmitting ? 'Creating...' : 'Create test'}
         </Button>
       </form>
     )
