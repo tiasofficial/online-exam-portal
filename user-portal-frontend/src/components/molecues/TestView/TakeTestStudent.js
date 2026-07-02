@@ -53,7 +53,7 @@ class TakeTestStudent extends React.Component {
     var test = this.props.test;
     return(<div className={this.props.classes.tableBorder}>
       <TableContainer component={Paper} className={this.props.classes.table}>
-        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <Table aria-label="simple table">
           <TableBody>
             <TableRow>
               <TableCell>Title</TableCell>
