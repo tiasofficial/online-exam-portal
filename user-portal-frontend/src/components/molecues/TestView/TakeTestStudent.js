@@ -86,13 +86,15 @@ class TakeTestStudent extends React.Component {
             <TableRow>
               <TableCell>Start Test</TableCell>
               <TableCell><Button
+                  variant="contained"
+                  color="primary"
                   onClick={(event)=>(this.onStartTest(event,test))}>
                     Start Test
               </Button></TableCell>
               </TableRow>
             <TableRow>
               <TableCell></TableCell>
-              <TableCell><Button onClick={(event)=>(this.goBack(event))}>Back</Button></TableCell>
+              <TableCell><Button variant="contained" onClick={(event)=>(this.goBack(event))}>Back</Button></TableCell>
             </TableRow>
           </TableBody>
         </Table>
