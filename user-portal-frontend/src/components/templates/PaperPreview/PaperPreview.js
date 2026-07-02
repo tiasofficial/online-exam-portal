@@ -194,7 +194,7 @@ class PaperPreview extends Component {
               
               <div style={{ margin: '10px 0' }}>
                 {q.body !== ' ' && <Typography>{q.body}</Typography>}
-                {q.bodyImage && q.bodyImage !== 'null' && q.bodyImage !== 'undefined' && q.bodyImage.trim() !== '' && <img src={`http://localhost:5000${q.bodyImage}`} alt="Q" style={{ maxHeight: '150px', marginTop: '10px' }} />}
+                {q.bodyImage && q.bodyImage !== 'null' && q.bodyImage !== 'undefined' && q.bodyImage.trim() !== '' && <img src={`${apis.BASE}${q.bodyImage}`} alt="Q" style={{ maxHeight: '150px', marginTop: '10px' }} />}
               </div>
 
               <div style={{ marginLeft: '20px' }}>
@@ -204,7 +204,7 @@ class PaperPreview extends Component {
                       {optIndex + 1}. {opt !== ' ' ? opt : ''}
                     </Typography>
                     {q.optionImages && q.optionImages[optIndex] && q.optionImages[optIndex] !== 'null' && q.optionImages[optIndex] !== 'undefined' && q.optionImages[optIndex].trim() !== '' && (
-                      <img src={`http://localhost:5000${q.optionImages[optIndex]}`} alt="opt" style={{ maxHeight: '50px' }} />
+                      <img src={`${apis.BASE}${q.optionImages[optIndex]}`} alt="opt" style={{ maxHeight: '50px' }} />
                     )}
                   </div>
                 ))}
