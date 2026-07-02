@@ -63,6 +63,7 @@ class PaperSetup extends Component {
       optImg4: null,
       answer: '1',
       marks: 1,
+      explanation: '',
       questions: [], // Added questions
       fileInputKey: Date.now()
     };
@@ -112,6 +113,7 @@ class PaperSetup extends Component {
     formData.append('option4', this.state.option4);
     formData.append('answer', this.state.answer);
     formData.append('marks', this.state.marks);
+    formData.append('explanation', this.state.explanation);
     
     if (this.state.bodyImage) formData.append('bodyImage', this.state.bodyImage);
     if (this.state.optImg1) formData.append('optImg1', this.state.optImg1);
@@ -135,6 +137,7 @@ class PaperSetup extends Component {
           option3: '', optImg3: null,
           option4: '', optImg4: null,
           answer: '1', marks: 1,
+          explanation: '',
           fileInputKey: Date.now()
         });
         this.fetchTestDetails(); // Refresh list
@@ -190,6 +193,19 @@ class PaperSetup extends Component {
           </FormControl>
 
           <TextField label="Marks" name="marks" type="number" value={this.state.marks} onChange={this.handleInputChange} margin="normal" variant="outlined" InputProps={{ inputProps: { min: 1 } }} />
+          
+          <TextField 
+            label="Explanation (Optional)" 
+            name="explanation" 
+            value={this.state.explanation} 
+            onChange={this.handleInputChange} 
+            margin="normal" 
+            variant="outlined" 
+            multiline 
+            rows={3} 
+            fullWidth
+            placeholder="Explain why the answer is correct..."
+          />
 
           <div className={classes.btnContainer}>
             <Button variant="contained" color="primary" type="submit">Add Question</Button>
