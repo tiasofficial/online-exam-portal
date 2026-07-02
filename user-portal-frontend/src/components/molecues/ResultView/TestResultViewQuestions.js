@@ -115,10 +115,14 @@ class TestResultViewQuestions extends React.Component {
               :
               <span className={this.props.classes.tcorrect}>{r.answer}</span> 
               <br/>
-              <span className={this.props.classes.tkey}>Explanation </span>
-              :
-              <span className={this.props.classes.tbody}>{r.explanation}</span> 
-              <br/>
+              {r.explanation && r.explanation.trim() !== '' && (
+                <React.Fragment>
+                  <span className={this.props.classes.tkey}>Explanation </span>
+                  :
+                  <span className={this.props.classes.tbody}>{r.explanation}</span> 
+                  <br/>
+                </React.Fragment>
+              )}
             </TableCell>
             </TableRow>
           ))}
