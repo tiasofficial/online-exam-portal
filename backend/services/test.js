@@ -672,7 +672,7 @@ var editExamQuestion = async (req, res, next) => {
   }
 
   try {
-    const { questionId, testId, body, option1, option2, option3, option4, answer, marks } = req.body;
+    const { questionId, testId, body, option1, option2, option3, option4, answer, marks, explanation } = req.body;
     
     const question = await questionModel.findById(questionId);
     if (!question) {
@@ -699,6 +699,9 @@ var editExamQuestion = async (req, res, next) => {
     question.options = [option1 || ' ', option2 || ' ', option3 || ' ', option4 || ' '];
     question.answer = answer;
     question.marks = parseInt(marks);
+    if (explanation !== undefined) {
+      question.explanation = explanation;
+    }
 
     await question.save();
 
