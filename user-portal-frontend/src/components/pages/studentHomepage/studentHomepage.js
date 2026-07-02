@@ -4,7 +4,8 @@ import LogoutButton from "../../atoms/LogoutButton/LogoutButton";
 import Auth from "../../../helper/Auth";
 import { Navigate } from "react-router-dom";
 import { getUserDetails } from "../../../redux/actions/loginAction";
-import { Drawer, Typography, withStyles, AppBar, Toolbar, List, ListItem, ListItemText } from "@material-ui/core";
+import { Drawer, Typography, withStyles, AppBar, Toolbar, List, ListItem, ListItemText, Hidden, IconButton } from "@material-ui/core";
+import MenuIcon from "@material-ui/icons/Menu";
 import AlertBox from '../../atoms/Alertbox/AlertBox';
 import TestDetailsStudent from "../../templates/TestDetails/TestDetailsStudent";
 import UpcomingStudentTestsDetails from "../../templates/TestDetails/UpcomingStudentTestsDetails";
@@ -37,7 +38,20 @@ const useStyles = (theme)=>({
     flexGrow : 1
   },
   appbar : {
-    height : appbarHeight
+    height : appbarHeight,
+    zIndex: theme.zIndex.drawer + 1
+  },
+  menuButton: {
+    marginRight: theme.spacing(2),
+    [theme.breakpoints.up('sm')]: {
+      display: 'none',
+    },
+  },
+  nav: {
+    [theme.breakpoints.up('sm')]: {
+      width: drawerWidth,
+      flexShrink: 0,
+    },
   }
 })
 
@@ -58,14 +72,20 @@ class StudentHomepage extends React.Component{
       },{
         title : 'Completed Tests',
         content : <CompletedTestsDetailsStudent/>
-      }]
+      }],
+      mobileOpen: false
     }
   }
+
+  handleDrawerToggle = () => {
+    this.setState({ mobileOpen: !this.state.mobileOpen });
+  };
 
   onMenuItemClick(content) {
     this.setState({
       ...this.state,
-      content: content
+      content: content,
+      mobileOpen: false
     })
   }
 
@@ -86,34 +106,70 @@ class StudentHomepage extends React.Component{
             className={this.props.classes.appbar}
           >
             <Toolbar>
+              <IconButton
+                color="inherit"
+                aria-label="open drawer"
+                edge="start"
+                onClick={this.handleDrawerToggle}
+                className={this.props.classes.menuButton}
+              >
+                <MenuIcon />
+              </IconButton>
               <Typography variant='h5' className={this.props.classes.title}>
                 Student Homepage
               </Typography>
-              <Typography variant='h6'>
-                welcome, {this.props.user.userDetails.username} !!
-              </Typography>
+              <Hidden xsDown>
+                <Typography variant='h6'>
+                  welcome, {this.props.user.userDetails.username} !!
+                </Typography>
+              </Hidden>
             </Toolbar>
           </AppBar>
           <div className={this.props.classes.addHeight}></div>
         </div>
         <div className={this.props.classes.flex}>
-          <Drawer
-            className={this.props.classes.drawer}
-            variant="permanent"
-            anchor="left"
-            classes= { {paper:this.props.classes.drawerPaper}}
-          >
-            <List>
-              {this.state.menuList.map((item,index)=>(
-                <ListItem button key={index} onClick={()=>(this.onMenuItemClick(item.content))}>
-                  <ListItemText primary={item.title}/>
-                </ListItem>
-              ))}
-              <ListItem>
-              <LogoutButton/>
-              </ListItem>
-            </List>
-          </Drawer>
+          <nav className={this.props.classes.nav} aria-label="mailbox folders">
+            <Hidden smUp implementation="css">
+              <Drawer
+                variant="temporary"
+                anchor="left"
+                open={this.state.mobileOpen}
+                onClose={this.handleDrawerToggle}
+                classes={{ paper: this.props.classes.drawerPaper }}
+                ModalProps={{ keepMounted: true }}
+              >
+                <List>
+                  {this.state.menuList.map((item,index)=>(
+                    <ListItem button key={index} onClick={()=>(this.onMenuItemClick(item.content))}>
+                      <ListItemText primary={item.title}/>
+                    </ListItem>
+                  ))}
+                  <ListItem>
+                  <LogoutButton/>
+                  </ListItem>
+                </List>
+              </Drawer>
+            </Hidden>
+            <Hidden xsDown implementation="css">
+              <Drawer
+                className={this.props.classes.drawer}
+                variant="permanent"
+                anchor="left"
+                classes= { {paper:this.props.classes.drawerPaper}}
+              >
+                <List>
+                  {this.state.menuList.map((item,index)=>(
+                    <ListItem button key={index} onClick={()=>(this.onMenuItemClick(item.content))}>
+                      <ListItemText primary={item.title}/>
+                    </ListItem>
+                  ))}
+                  <ListItem>
+                  <LogoutButton/>
+                  </ListItem>
+                </List>
+              </Drawer>
+            </Hidden>
+          </nav>
           <div className={this.props.classes.content}>
             
           <AlertBox></AlertBox>
