@@ -3,6 +3,7 @@ import { connect } from "react-redux";
 import React from "react";
 import { FormControl, FormControlLabel, FormLabel, RadioGroup, Radio } from "@material-ui/core";
 import { selectedOptionAction } from "../../../redux/actions/takeTestAction";
+import apis from "../../../helper/Apis";
 
 
 const useStyles = (theme) => ({
@@ -38,14 +39,14 @@ class TestQuestion extends React.Component {
       const renderLabel = (text, imgUrl) => (
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           {text !== ' ' && <span>{text}</span>}
-          {imgUrl && imgUrl !== 'null' && <img src={`http://localhost:5000${imgUrl}`} alt="option" style={{ maxHeight: '100px' }} />}
+          {imgUrl && imgUrl !== 'null' && <img src={`${apis.BASE}${imgUrl}`} alt="option" style={{ maxHeight: '100px' }} />}
         </div>
       );
 
       return(<div className={this.props.classes.main}>
         <div className={this.props.classes.quebody}>
           {que.body !== ' ' && <p>{que.body}</p>}
-          {que.bodyImage && que.bodyImage !== 'null' && <img src={`http://localhost:5000${que.bodyImage}`} alt="question" style={{ maxWidth: '100%', maxHeight: '300px' }} />}
+          {que.bodyImage && que.bodyImage !== 'null' && <img src={`${apis.BASE}${que.bodyImage}`} alt="question" style={{ maxWidth: '100%', maxHeight: '300px' }} />}
         </div>
         <FormControl component="fieldset" className={this.props.classes.options}>
           <FormLabel component="legend" >Select Answer</FormLabel>
