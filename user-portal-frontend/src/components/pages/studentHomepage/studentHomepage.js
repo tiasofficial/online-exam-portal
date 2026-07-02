@@ -31,7 +31,10 @@ const useStyles = (theme)=>({
   content : {
     flexGrow: 1,
     padding: theme.spacing(3),
-    maxWidth: `calc(100% - ${drawerWidth}px)`
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      maxWidth: `calc(100% - ${drawerWidth}px)`
+    }
   },
   addHeight : theme.mixins.toolbar,
   title : {
