@@ -88,7 +88,8 @@ class PaperPreview extends Component {
         option4: q.options[3] || '',
         optImg4: null,
         answer: q.answer,
-        marks: q.marks
+        marks: q.marks,
+        explanation: q.explanation || ''
       }
     });
   }
@@ -127,6 +128,7 @@ class PaperPreview extends Component {
     formData.append('option4', this.state.editData.option4);
     formData.append('answer', this.state.editData.answer);
     formData.append('marks', this.state.editData.marks);
+    formData.append('explanation', this.state.editData.explanation);
 
     if (this.state.editData.bodyImage) formData.append('bodyImage', this.state.editData.bodyImage);
     if (this.state.editData.optImg1) formData.append('optImg1', this.state.editData.optImg1);
@@ -251,6 +253,19 @@ class PaperPreview extends Component {
                 </FormControl>
 
                 <TextField label="Marks" name="marks" type="number" value={editData.marks} onChange={this.handleInputChange} margin="normal" variant="outlined" InputProps={{ inputProps: { min: 1 } }} fullWidth />
+                
+                <TextField 
+                  label="Explanation (Optional)" 
+                  name="explanation" 
+                  value={editData.explanation} 
+                  onChange={this.handleInputChange} 
+                  margin="normal" 
+                  variant="outlined" 
+                  multiline 
+                  rows={3} 
+                  fullWidth
+                  placeholder="Explain why the answer is correct..."
+                />
 
                 <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '20px' }}>
                   <Button onClick={this.handleCloseModal} color="default">Cancel</Button>
