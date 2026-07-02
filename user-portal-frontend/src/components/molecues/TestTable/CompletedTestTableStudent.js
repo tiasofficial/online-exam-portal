@@ -49,7 +49,7 @@ class CompletedTestTableStudent extends React.Component {
                 <TableCell>{test.title}</TableCell>
                 <TableCell style={{textTransform:'lowercase'}}>{test.status}</TableCell>
                 <TableCell>{test.maxmarks}</TableCell>
-                <TableCell><Button onClick={(event)=>(this.onTestClick(event,test._id))}>View</Button></TableCell>
+                <TableCell><Button variant="contained" color="primary" size="small" onClick={(event)=>(this.onTestClick(event,test._id))}>View</Button></TableCell>
               </TableRow>
             ))}
           </TableBody>

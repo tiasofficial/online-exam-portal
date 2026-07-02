@@ -38,7 +38,8 @@ class TestTableStudent extends React.Component {
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead >
             <TableRow>
-              <TableCell align="left" className={this.props.classes.tableHeader}>Test</TableCell>
+              <TableCell align="left" className={this.props.classes.tableHeader}>Action</TableCell>
+              <TableCell align="left" className={this.props.classes.tableHeader}>Test Title</TableCell>
               <TableCell className={this.props.classes.tableHeader}>Status</TableCell>
               <TableCell className={this.props.classes.tableHeader}>total<br/>marks</TableCell>
               <TableCell className={this.props.classes.tableHeader}>Duration<br/>(hours)</TableCell>
@@ -53,7 +54,17 @@ class TestTableStudent extends React.Component {
           <TableBody>
             {this.props.testlist.map((test,index)=>(
               <TableRow key={index}>
-                <TableCell onClick={(event)=>(this.onTestClick(event,test._id))} style={{cursor:'pointer', color:'blue', textDecoration:'underline'}}>{test.title}</TableCell>
+                <TableCell>
+                  <Button 
+                    variant="contained" 
+                    color="primary" 
+                    size="small" 
+                    onClick={(event)=>(this.onTestClick(event,test._id))}
+                  >
+                    View Test
+                  </Button>
+                </TableCell>
+                <TableCell>{test.title}</TableCell>
                 <TableCell style={{textTransform:'lowercase'}}>{test.status}</TableCell>
                 <TableCell>{test.maxmarks}</TableCell>
                 <TableCell>{getTimePretty(test.duration)}</TableCell>
@@ -63,6 +74,9 @@ class TestTableStudent extends React.Component {
                 <TableCell>{getDatePretty(test.endTime)}</TableCell>
                 <TableCell>{getDatePretty(test.resultTime)}</TableCell>
                 <TableCell>{test.isRegistered===false?(test.status==='REGISTRATION_STARTED'? (<Button
+                  variant="contained"
+                  color="secondary"
+                  size="small"
                   onClick={(event)=>(this.onTestRegister(event,test._id))}>
                     Register
                 </Button>)  : 'not Registered'):'Registered'}</TableCell>

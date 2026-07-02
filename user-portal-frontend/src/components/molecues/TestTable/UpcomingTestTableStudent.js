@@ -57,7 +57,7 @@ class UpcomingTestTableStudent extends React.Component {
                 <TableCell>{getDatePretty(test.startTime)}</TableCell>
                 <TableCell>{getDatePretty(test.endTime)}</TableCell>
                 <TableCell>{getDatePretty(test.resultTime)}</TableCell>
-                <TableCell><Button onClick={(event)=>(this.onTestClick(event,test._id))}>View</Button></TableCell>
+                <TableCell><Button variant="contained" color="primary" size="small" onClick={(event)=>(this.onTestClick(event,test._id))}>View</Button></TableCell>
               </TableRow>
             ))}
           </TableBody>
