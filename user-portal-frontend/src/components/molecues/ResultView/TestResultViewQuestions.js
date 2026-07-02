@@ -111,6 +111,10 @@ class TestResultViewQuestions extends React.Component {
               :
               <span className={r.answer===r.studentanswer?this.props.classes.tcorrect : this.props.classes.tfalse}>{r.studentanswer|| "(no answer selected)"}</span> 
               <br/>
+              <span className={this.props.classes.tkey}>Correct Answer </span>
+              :
+              <span className={this.props.classes.tcorrect}>{r.answer}</span> 
+              <br/>
               <span className={this.props.classes.tkey}>Explanation </span>
               :
               <span className={this.props.classes.tbody}>{r.explanation}</span> 
