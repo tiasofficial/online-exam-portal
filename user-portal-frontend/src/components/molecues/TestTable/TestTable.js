@@ -7,6 +7,12 @@ import axios from "axios";
 import apis from "../../../helper/Apis";
 import Auth from "../../../helper/Auth";
 
+const getImageUrl = (path) => {
+  if (!path || path === 'null' || path === 'undefined') return '';
+  if (path.startsWith('http')) return path;
+  return `${apis.BASE}${path}`;
+};
+
 
 const useStyles = (theme)=> ({
   tableBorder:{
@@ -193,14 +199,14 @@ class TestTable extends React.Component {
                 <div key={index} style={{marginBottom: '15px', padding: '10px', border: '1px solid #eee', borderRadius: '5px'}}>
                   <p><strong>Q{index + 1}: {q.body}</strong> ({q.marks} Marks)</p>
                   {q.bodyImage && q.bodyImage !== 'null' && q.bodyImage !== 'undefined' && q.bodyImage.trim() !== '' && (
-                    <img src={apis.BASE + q.bodyImage} alt="Question Image" style={{maxWidth: '100%', maxHeight: '200px', display: 'block', margin: '10px 0'}} />
+                    <img src={getImageUrl(q.bodyImage)} alt="Question Image" style={{maxWidth: '100%', maxHeight: '200px', display: 'block', margin: '10px 0'}} />
                   )}
                   <ul>
                     {q.options.map((opt, i) => (
                       <li key={i} style={{color: opt === q.answer ? 'green' : 'black', fontWeight: opt === q.answer ? 'bold' : 'normal', marginBottom: '10px'}}>
                         {opt} {opt === q.answer ? "(Correct Answer)" : ""}
                         {q.optionImages && q.optionImages[i] && q.optionImages[i] !== 'null' && q.optionImages[i] !== 'undefined' && q.optionImages[i].trim() !== '' && (
-                          <img src={apis.BASE + q.optionImages[i]} alt={`Option ${i+1}`} style={{maxWidth: '150px', maxHeight: '150px', display: 'block', marginTop: '5px'}} />
+                          <img src={getImageUrl(q.optionImages[i])} alt={`Option ${i+1}`} style={{maxWidth: '150px', maxHeight: '150px', display: 'block', marginTop: '5px'}} />
                         )}
                       </li>
                     ))}
