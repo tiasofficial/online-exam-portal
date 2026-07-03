@@ -51,24 +51,29 @@ class LoginPage extends React.Component {
     } 
     else {
       return (
-        <div>
-          <AppBar
-          elevation={0}
-          className={this.props.classes.appbar}
-          >
-            <Toolbar>
-                  <Typography variant='h5' className={this.props.classes.title}>
-                    Login 
-                  </Typography>
-                  <Typography variant='h6'>
-                    <Button variant="contained" className={this.props.classes.endtestbtn} onClick={()=>(this.onStudentRegisterClick())}>Student Register</Button>
-                  </Typography>
-            </Toolbar>
-          </AppBar>
-          <div className={this.props.classes.addHeight}></div>
-          <div className={this.props.classes.main}>
-          <AlertBox/>
-          <LoginForm/>
+        <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ flex: 1 }}>
+            <AppBar
+            elevation={0}
+            className={this.props.classes.appbar}
+            >
+              <Toolbar>
+                    <Typography variant='h5' className={this.props.classes.title}>
+                      Login 
+                    </Typography>
+                    <Typography variant='h6'>
+                      <Button variant="contained" className={this.props.classes.endtestbtn} onClick={()=>(this.onStudentRegisterClick())}>Student Register</Button>
+                    </Typography>
+              </Toolbar>
+            </AppBar>
+            <div className={this.props.classes.addHeight}></div>
+            <div className={this.props.classes.main}>
+            <AlertBox/>
+            <LoginForm/>
+            </div>
+          </div>
+          <div style={{ textAlign: 'center', padding: '15px', backgroundColor: '#f8f9fa', borderTop: '1px solid #dee2e6' }}>
+            Designed and developed by <a href="https://www.tiastech.in/" target="_blank" rel="noopener noreferrer" style={{textDecoration: 'none', color: '#007bff'}}>TIAS</a>
           </div>
         </div>
       )
