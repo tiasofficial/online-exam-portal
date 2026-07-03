@@ -102,7 +102,8 @@ class StudentHomepage extends React.Component{
       return (<Navigate to='/'/>);
     }
     return(
-      <div>
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+        <div style={{ flex: 1 }}>
         <div>
           <AppBar
             elevation={0}
@@ -179,6 +180,10 @@ class StudentHomepage extends React.Component{
           {this.state.content}
             
           </div>
+        </div>
+        </div>
+        <div style={{ textAlign: 'center', padding: '15px', backgroundColor: '#f8f9fa', borderTop: '1px solid #dee2e6', zIndex: 1201, position: 'relative' }}>
+          Designed and developed by <a href="https://www.tiastech.in/" target="_blank" rel="noopener noreferrer" style={{textDecoration: 'none', color: '#007bff'}}>TIAS</a>
         </div>
       </div>
     )
