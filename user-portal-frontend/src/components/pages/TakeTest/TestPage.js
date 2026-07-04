@@ -43,6 +43,27 @@ class TestPage extends React.Component {
     }
   }
 
+  componentDidMount() {
+    try {
+      const elem = document.documentElement;
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen().catch(err => console.log("Fullscreen request failed:", err));
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  componentWillUnmount() {
+    try {
+      if (document.fullscreenElement && document.exitFullscreen) {
+        document.exitFullscreen().catch(err => console.log("Exit fullscreen failed:", err));
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
   setCurIndex(x, obj) {
     console.log("set index");
     console.log(obj);
