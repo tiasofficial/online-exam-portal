@@ -33,6 +33,15 @@ class TakeTestStudent extends React.Component {
   onStartTest(event,test) {
     if(test.status==='TEST_STARTED'){
       console.log("start test "+test._id);
+      
+      try {
+        if (document.documentElement.requestFullscreen) {
+          document.documentElement.requestFullscreen().catch(err => console.log("Fullscreen request failed:", err));
+        }
+      } catch (e) {
+        console.log(e);
+      }
+
       this.props.startTestAction({testid:test._id},test);
 
     } else {
