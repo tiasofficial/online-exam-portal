@@ -88,7 +88,7 @@ class ViewTest extends React.Component {
       queTypes : this.props.testDetails.test.queTypes,
       startTime: this.props.testDetails.test.startTime.slice(0,-8),
       endTime : this.props.testDetails.test.endTime.slice(0,-8),
-      duration : getSecondToStr(this.props.testDetails.test.duration),
+      duration : Math.round(this.props.testDetails.test.duration / 60),
       regStartTime : this.props.testDetails.test.regStartTime ? this.props.testDetails.test.regStartTime.slice(0,-8) : "N/A",
       regEndTime : this.props.testDetails.test.regEndTime ? this.props.testDetails.test.regEndTime.slice(0,-8) : "N/A",
       resultTime :  this.props.testDetails.test.resultTime ? this.props.testDetails.test.resultTime.slice(0,-8) : "N/A",
@@ -190,7 +190,7 @@ class ViewTest extends React.Component {
         </div>
         <div className={this.props.classes.field}>
           <div className={this.props.classes.fieldkey}>Test Duration</div>
-          <div className={this.props.classes.fieldvalue}>{this.state.duration} hours</div>
+          <div className={this.props.classes.fieldvalue}>{this.state.duration} minutes</div>
         </div>
         <div className={this.props.classes.field}>
           <div className={this.props.classes.fieldkey}>Result Time</div>

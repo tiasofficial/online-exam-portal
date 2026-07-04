@@ -59,7 +59,7 @@ class CreateTestForm extends React.Component {
       queTypes : [],
       startTime: "",
       endTime : "",
-      duration : "00:30",
+      duration : 30,
       regStartTime : "",
       regEndTime : "",
       resultTime : "",
@@ -206,16 +206,10 @@ class CreateTestForm extends React.Component {
     })
   }
 
-  timeStringtoMs(str) {
-    var hours = parseInt(str.substring(0,2));
-    var mins = parseInt(str.substring(3));
-    return ((hours * 60 + mins) * 60 * 1000)
-  }
-
   handleSubmit(event) {
     event.preventDefault();
     if (this.state.isSubmitting) return;
-    var dur = this.timeStringtoMs(this.state.duration);
+    var dur = parseInt(this.state.duration) * 60 * 1000;
     if(this.state.subjects.length<1) {
       this.sendAlert('error','Invalid input','select at least one subject');
     } else if(this.state.regStartTime && this.state.regEndTime && Date.parse(this.state.regStartTime) >= Date.parse(this.state.regEndTime)) {
@@ -372,10 +366,11 @@ class CreateTestForm extends React.Component {
           variant='outlined'
           color="primary"
           className={this.props.classes.optionInput}
-          label="Test Duration"
-          type='time'
+          label="Test Duration (minutes)"
+          type='number'
           error_text=''
           value={this.state.duration}
+          inputProps={{ min: 1 }}
           onChange={(event)=>(this.TestDurationInputHandler(event))}
           required
           InputLabelProps={{
