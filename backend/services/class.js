@@ -5,10 +5,11 @@ var subjectModel = require('../models/subject');
 var seedClasses = async (req, res, next) => {
   const classNames = ["Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "Crash Course"];
   try {
+    const orgId = req.user.organizationId;
     for (const name of classNames) {
-      const existing = await classModel.findOne({ name: name });
+      const existing = await classModel.findOne({ name: name, organizationId: orgId });
       if (!existing) {
-        await classModel.create({ name: name });
+        await classModel.create({ name: name, organizationId: orgId });
       }
     }
     res.json({ success: true, message: "Classes seeded successfully" });
@@ -23,15 +24,16 @@ var getAllClasses = async (req, res, next) => {
     return res.status(401).json({ success: false, message: "Permissions not granted!" });
   }
   try {
-    let classes = await classModel.find().populate('students', 'username email _id').populate('subjects', 'name _id');
+    const orgId = req.user.organizationId || null;
+    let classes = await classModel.find({ organizationId: orgId }).populate('students', 'username email _id').populate('subjects', 'name _id');
     
     // Auto seed if empty
     if(classes.length === 0) {
       const classNames = ["Class 6", "Class 7", "Class 8", "Class 9", "Class 10", "Class 11", "Class 12", "Crash Course"];
       for (const name of classNames) {
-        await classModel.create({ name: name });
+        await classModel.create({ name: name, organizationId: orgId });
       }
-      classes = await classModel.find().populate('students', 'username email _id').populate('subjects', 'name _id');
+      classes = await classModel.find({ organizationId: orgId }).populate('students', 'username email _id').populate('subjects', 'name _id');
     }
 
     res.json({ success: true, classes: classes });

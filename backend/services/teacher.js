@@ -3,7 +3,7 @@ const userModel = require("../models/user")
 
 
 var getAllTeacher = (req, res, next) => {
-  userModel.find({usertype:"TEACHER"}, (err, users)=>{
+  userModel.find({usertype:"TEACHER"}).populate('organizationId').exec((err, users)=>{
     if(err) {
       res.status(500).json({
         success:false,
@@ -18,7 +18,8 @@ var getAllTeacher = (req, res, next) => {
           "email" : teacher.email,
           "password" : teacher.password,
           "status" : teacher.status,
-          "createdAt" : teacher.createdAt
+          "createdAt" : teacher.createdAt,
+          "organization" : teacher.organizationId ? teacher.organizationId.name : null
         })
       })
       res.json({

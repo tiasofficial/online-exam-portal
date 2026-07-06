@@ -32,7 +32,7 @@ var userLogin = (req, res, next) => {
             });
           }
 
-          var token = jwt.sign({_id:user._id},config.get('jwt.secret'),{expiresIn:'1d'});
+          var token = jwt.sign({_id:user._id, organizationId: user.organizationId},config.get('jwt.secret'),{expiresIn:'1d'});
           res.json({
             success: true,
             message : 'login successful',
@@ -40,7 +40,8 @@ var userLogin = (req, res, next) => {
               username : user.username,
               type : user.usertype,
               _id : user._id,
-              email : user.email
+              email : user.email,
+              organizationId: user.organizationId
             },
             token : token
           })
@@ -58,7 +59,8 @@ var userDetails = (req,res,next) => {
         username : req.user.username,
         type : req.user.usertype,
         _id : req.user._id,
-        email : req.user.email
+        email : req.user.email,
+        organizationId: req.user.organizationId
       }
     });
   }

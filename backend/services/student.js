@@ -5,7 +5,11 @@ const userModel = require("../models/user")
 const tool = require("./tool");
 
 var getAllStudents = (req, res, next) => {
-  userModel.find({usertype:"STUDENT"}, (err, users)=>{
+  var query = {usertype: "STUDENT"};
+  if (req.user && req.user.usertype === 'TEACHER') {
+    query.organizationId = req.user.organizationId || null;
+  }
+  userModel.find(query).populate('organizationId').exec((err, users)=>{
     if(err) {
       res.status(500).json({
         success:false,
@@ -20,7 +24,8 @@ var getAllStudents = (req, res, next) => {
           "email" : student.email,
           "password" : student.password,
           "status" : student.status,
-          "createdAt" : student.createdAt
+          "createdAt" : student.createdAt,
+          "organization" : student.organizationId ? student.organizationId.name : null
         })
       })
       res.json({
@@ -46,7 +51,8 @@ var createStudent = async (req, res, next) => {
       username: username,
       email: email,
       password: hash,
-      usertype: 'STUDENT'
+      usertype: 'STUDENT',
+      organizationId: req.user.organizationId || undefined
     });
     res.json({ success: true, message: "Student created", student: { id: newStudent._id, name: newStudent.username, email: newStudent.email, status: newStudent.status } });
   } catch(err) {
@@ -66,7 +72,10 @@ var updateStudent = async (req, res, next) => {
     if(password) {
       updateData.password = await tool.hashPassword(password);
     }
-    await userModel.findByIdAndUpdate(studentId, updateData);
+    const updated = await userModel.findOneAndUpdate({ _id: studentId, organizationId: req.user.organizationId }, updateData);
+    if (!updated) {
+      return res.status(404).json({ success: false, message: "Student not found in your organization" });
+    }
     res.json({ success: true, message: "Student updated" });
   } catch(err) {
     console.log(err);
@@ -80,7 +89,10 @@ var deleteStudent = async (req, res, next) => {
   }
   const { studentId } = req.body;
   try {
-    await userModel.findByIdAndDelete(studentId);
+    const deleted = await userModel.findOneAndDelete({ _id: studentId, organizationId: req.user.organizationId });
+    if (!deleted) {
+      return res.status(404).json({ success: false, message: "Student not found in your organization" });
+    }
     res.json({ success: true, message: "Student deleted" });
   } catch(err) {
     console.log(err);

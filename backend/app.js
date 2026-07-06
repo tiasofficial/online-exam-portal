@@ -1,4 +1,4 @@
-
+require('dotenv').config();
 var createError = require('http-errors');
 var express = require('express');
 const session = require('express-session');
@@ -23,10 +23,10 @@ app.use(function(req, res, next) {
 
 const corsOptions = {
     origin: [
-     'https://exam-portal-admin-tias.vercel.app', 
-     'https://exam-portal-users.vercel.app',
-     'http://localhost:3000',
-     'http://localhost:3001'
+      'https://exam-portal-admin-tias.vercel.app', 
+      'https://exam-portal-users.vercel.app',
+      'http://localhost:3000',
+      'http://localhost:3001'
     ]
   }
 app.use(cors(corsOptions));

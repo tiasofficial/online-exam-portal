@@ -3,6 +3,7 @@ var subjectModel = require('../models/subject');
 var tool = require('./tool');
 const adminModel = require('../models/admin');
 const { hashPassword } = require('../services/tool');
+const organizationModel = require('../models/organization');
 
 var teacherRegister = (req,res,next) => {
   var creator = req.user || null;
@@ -27,6 +28,12 @@ var teacherRegister = (req,res,next) => {
     var username = req.body.username;
     var password = req.body.password;
     var email = req.body.email;
+    var organizationId = req.body.organizationId;
+    
+    if(!organizationId) {
+      return res.json({ success: false, message: 'Organization is required' });
+    }
+
     userModel.findOne({'email':email}).then((user)=>{
       //user already exists
       if(user) {
@@ -43,7 +50,8 @@ var teacherRegister = (req,res,next) => {
             password : hash,
             email : email,
             usertype : 'TEACHER',
-            createdBy : creator._id
+            createdBy : creator._id,
+            organizationId : organizationId
           })
           tempdata.save()
           .then(()=>{
@@ -199,7 +207,9 @@ var addSubject = (req,res,next) => {
   }
   else {
     var name = req.body.name;
-    subjectModel.findOne({'name':name}).then((subject)=>{
+    var organizationId = req.body.organizationId;
+    if(!organizationId) return res.json({ success: false, message: 'Organization is required' });
+    subjectModel.findOne({'name':name, 'organizationId': organizationId}).then((subject)=>{
       // subject already exists
       if(subject) {
         res.json({
@@ -208,11 +218,11 @@ var addSubject = (req,res,next) => {
         })
       }
       else {
-        //add subject to database
         var newsubject = new subjectModel({
           name : name,
           status : true,
-          createdBy : creator._id
+          createdBy : creator._id,
+          organizationId: organizationId
         })
 
         newsubject.save()
@@ -394,6 +404,46 @@ var addAdminIfNotFound = () => {
   })
 }
 
+var createOrganization = (req, res, next) => {
+  var name = req.body.name;
+  var code = req.body.code;
+  if (!name || !code) {
+    return res.json({ success: false, message: 'Name and Code are required' });
+  }
+  var newOrg = new organizationModel({ name: name, code: code });
+  newOrg.save()
+    .then(() => res.json({ success: true, message: 'Organization created successfully!' }))
+    .catch(err => res.json({ success: false, message: 'Error: Organization code may already exist' }));
+};
+
+var getOrganizations = (req, res, next) => {
+  organizationModel.find({})
+    .then(orgs => res.json({ success: true, organizations: orgs }))
+    .catch(err => res.json({ success: false, message: 'Error fetching organizations' }));
+};
+
+var changeOrganizationStatus = (req, res, next) => {
+  if(req.user == null) {
+    return res.status(401).json({ success: false, message: "Permissions not granted!" });
+  }
+  var organizationId = req.body.organizationId;
+  var status = req.body.status;
+  
+  organizationModel.findOneAndUpdate({ _id: organizationId }, { status: status })
+    .then(() => res.json({ success: true, message: "Organization status updated" }))
+    .catch(err => res.status(500).json({ success: false, message: "Unable to update organization status" }));
+};
+
+var deleteOrganization = (req, res, next) => {
+  if(req.user == null) {
+    return res.status(401).json({ success: false, message: "Permissions not granted!" });
+  }
+  var organizationId = req.body.organizationId;
+  
+  organizationModel.findOneAndDelete({ _id: organizationId })
+    .then(() => res.json({ success: true, message: "Organization deleted successfully" }))
+    .catch(err => res.status(500).json({ success: false, message: "Unable to delete organization" }));
+};
 
 module.exports = { 
   teacherRegister, 
@@ -405,5 +455,9 @@ module.exports = {
   subjectRemove,
   unblockSubject,
   getDashboardCount,
-  addAdminIfNotFound
+  addAdminIfNotFound,
+  createOrganization,
+  getOrganizations,
+  changeOrganizationStatus,
+  deleteOrganization
 }

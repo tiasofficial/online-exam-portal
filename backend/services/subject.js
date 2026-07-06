@@ -2,7 +2,9 @@ const subjectModel = require("../models/subject")
 
 
 var getAllSubject = (req, res, next) => {
-  subjectModel.find({}, (err, sub)=>{
+  var orgId = req.user && req.user.usertype === 'TEACHER' ? (req.user.organizationId || null) : null;
+  var query = req.user && req.user.usertype === 'TEACHER' ? { organizationId: orgId } : {};
+  subjectModel.find(query, (err, sub)=>{
     if(err) {
       res.status(500).json({
         success:false,
@@ -26,7 +28,9 @@ var getAllSubject = (req, res, next) => {
 }
 
 var getAllActiveSubject = (req, res, next) => {
-  subjectModel.find({status:true}, (err, sub)=>{
+  var orgId = req.user && req.user.usertype === 'TEACHER' ? (req.user.organizationId || null) : null;
+  var query = req.user && req.user.usertype === 'TEACHER' ? { status:true, organizationId: orgId } : { status:true };
+  subjectModel.find(query, (err, sub)=>{
     if(err) {
       res.status(500).json({
         success:false,
@@ -88,11 +92,16 @@ var createSubject = async (req, res, next) => {
   }
   const { name } = req.body;
   try {
-    const existing = await subjectModel.findOne({ name: name });
+    const existing = await subjectModel.findOne({ name: name, organizationId: req.user.organizationId || null });
     if (existing) {
       return res.json({ success: false, message: "Subject already exists" });
     }
-    const newSub = await subjectModel.create({ name: name, status: true });
+    const newSub = await subjectModel.create({ 
+      name: name, 
+      status: true, 
+      createdBy: req.user._id,
+      organizationId: req.user.organizationId || undefined 
+    });
     res.json({ success: true, message: "Subject created", subject: { id: newSub._id, subject: newSub.name, status: newSub.status } });
   } catch(err) {
     console.log(err);

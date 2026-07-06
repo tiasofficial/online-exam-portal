@@ -106,6 +106,9 @@ var createTest = async (req,res,next) => {
     targetSubject : req.body.targetSubject,
     createdBy : creator._id
   })
+  if (creator.organizationId) {
+    tempdata.organizationId = creator.organizationId;
+  }
   tempdata.save(async (err, savedTest)=>{
     if (err){
       console.log(err);
@@ -159,7 +162,9 @@ var getAllTest = (req,res,next) => {
   }
 
   try {
-    testModel.find().sort({startTime:-1})
+    var orgId = req.user && req.user.usertype === 'TEACHER' ? (req.user.organizationId || null) : null;
+    var query = req.user && req.user.usertype === 'TEACHER' ? { organizationId: orgId } : {};
+    testModel.find(query).sort({startTime:-1})
     .then((result)=>{
       for(x in result) {
         var correctStatus = getTestStatus(result[x]);
@@ -269,7 +274,7 @@ var getAllTestWithStudentRegisterCheck = async(req,res,next) => {
   var studentClasses = await classModel.find({ students: creator._id }, { _id: 1 });
   var classIds = studentClasses.map(c => c._id);
 
-  var tests = await testModel.find({ $or: [{ targetClass: { $in: classIds } }, { targetClass: null }] }).sort({startTime:1}).catch(err=>{
+  var tests = await testModel.find({ organizationId: creator.organizationId, $or: [{ targetClass: { $in: classIds } }, { targetClass: null }] }).sort({startTime:1}).catch(err=>{
     console.log(err);
     res.json({
       success : false,
@@ -332,7 +337,7 @@ var getUpcomingTestforStudent = async(req,res,next) => {
   var studentClasses = await classModel.find({ students: creator._id }, { _id: 1 });
   var classIds = studentClasses.map(c => c._id);
 
-  var tests = await testModel.find({ endTime:{$gt:Date.now()}, $or: [{ targetClass: { $in: classIds } }, { targetClass: null }] }).sort({startTime:1}).catch(err=>{
+  var tests = await testModel.find({ organizationId: creator.organizationId, endTime:{$gt:Date.now()}, $or: [{ targetClass: { $in: classIds } }, { targetClass: null }] }).sort({startTime:1}).catch(err=>{
     console.log(err);
     res.json({
       success : false,
