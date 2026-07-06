@@ -39,6 +39,11 @@ var questionSchema = new mongoose.Schema({
   createdBy : {
     type : mongoose.Schema.Types.ObjectId,
     ref : 'user'
+  },
+  organizationId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'organization',
+    required: false
   }
 }, 
 {
