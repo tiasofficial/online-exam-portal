@@ -14,6 +14,7 @@ import SubjectImg from '../subject.jfif';
 import TeacherTable from "../teacherTable/teacherTable";
 import SubjectTable from "../subjectTable/subjectTable";
 import StudentTable from "../studentTable/studentTable";
+import OrganizationTable from "../organizationTable/organizationTable";
 
 const useStyles = (theme)=>({
   logout_btn : {
@@ -70,6 +71,8 @@ class DashboardMain extends React.Component {
         x = <StudentTable/>;
       } else if (this.expand === "Subject") {
         x = <SubjectTable/>;
+      } else if (this.expand === "Organization") {
+        x = <OrganizationTable/>;
       }
         return (
           <div>
@@ -90,6 +93,12 @@ class DashboardMain extends React.Component {
               <button ><Link to="/addSubject" className={this.props.classes.linkbtn}>Add Subject</Link></button>
               <br/>
               <button onClick={()=>(this.handleTableExapand("Subject"))}>Show</button>
+            </div>
+            <MainCard title='Organization' value="All" total="Orgs" image={SubjectImg} />
+            <div className={this.props.classes.inlineblock}>
+              <button onClick={()=>(this.handleTableExapand("Organization"))} className={this.props.classes.linkbtn}>Add Org</button>
+              <br/>
+              <button onClick={()=>(this.handleTableExapand("Organization"))}>Show</button>
             </div>
             <br/>
 

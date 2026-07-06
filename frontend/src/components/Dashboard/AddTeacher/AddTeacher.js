@@ -15,8 +15,23 @@ class AddTeacher extends React.Component {
       name : "",
       email : "",
       password : "",
-      confirmpassword : ""
+      confirmpassword : "",
+      organizationId: "",
+      organizations: []
     }
+  }
+
+  componentDidMount() {
+    axios.get(apis.BASE + apis.GET_ORGANIZATIONS, {
+      headers: { 'Authorization': `Bearer ${Auth.retriveToken()}` }
+    }).then(res => {
+      if(res.data.success) {
+        this.setState({ organizations: res.data.organizations });
+        if(res.data.organizations.length > 0) {
+          this.setState({ organizationId: res.data.organizations[0]._id });
+        }
+      }
+    });
   }
 
   nameInputHandler = (event)=>{
@@ -46,6 +61,13 @@ class AddTeacher extends React.Component {
       confirmpassword : event.target.value
     })
   }
+
+  orgInputHandler = (event)=> {
+    this.setState({
+      ...this.state,
+      organizationId : event.target.value
+    })
+  }
   
   handleSubmit= (event) => {
     event.preventDefault();
@@ -56,7 +78,8 @@ class AddTeacher extends React.Component {
     axios.post(apis.BASE + apis.ADD_TEACHER, {
       username : this.state.name,
       email : this.state.email,
-      password : this.state.password
+      password : this.state.password,
+      organizationId : this.state.organizationId
     },{
       headers:{
         'Authorization':`Bearer ${Auth.retriveToken()}`
@@ -85,6 +108,14 @@ class AddTeacher extends React.Component {
         <div>
           <label> Name </label>
           <input type='Text' value={this.state.name} onChange={this.nameInputHandler} required/>
+        </div>
+        <div>
+          <label> Organization </label>
+          <select value={this.state.organizationId} onChange={this.orgInputHandler} required>
+            {this.state.organizations.map(org => (
+              <option key={org._id} value={org._id}>{org.name} ({org.code})</option>
+            ))}
+          </select>
         </div>
         <div>
           <label> Email </label>

@@ -29,7 +29,11 @@ const apis = {
   REMOVE_CLASS_STUDENT : "/api/v1/class/removeStudent",
   ADD_CLASS_SUBJECT : "/api/v1/class/addSubject",
   REMOVE_CLASS_SUBJECT : "/api/v1/class/removeSubject",
-  GET_TEACHER_RESULTS : "/api/v1/user/getTestResultsForTeacher"
+  GET_TEACHER_RESULTS : "/api/v1/user/getTestResultsForTeacher",
+  GET_ORGANIZATIONS: "/api/v1/admin/organizations",
+  ADD_ORGANIZATION: "/api/v1/admin/organizations",
+  CHANGE_ORGANIZATION_STATUS: "/api/v1/admin/changeOrganizationStatus",
+  DELETE_ORGANIZATION: "/api/v1/admin/deleteOrganization"
 }
 
 export default apis;

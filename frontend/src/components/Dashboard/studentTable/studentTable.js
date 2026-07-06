@@ -44,6 +44,7 @@ class StudentTable extends React.Component {
             <th>Email</th>
             <th>Password</th>
             <th>Created At</th>
+            <th>Organization</th>
             <th>Status</th>
             <th>Action</th>
           </tr>
@@ -56,6 +57,7 @@ class StudentTable extends React.Component {
                 <td>{val.email}</td>
                 <td><div style={{maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'}} title={val.password}>{val.password}</div></td>
                 <td>{new Date(val.createdAt).toLocaleString()}</td>
+                <td>{val.organization || "N/A"}</td>
                 <td>{val.status.toString()}</td>
                 <td>
                   <button onClick={()=>(this.handleStatusChange(val.status,val.id))} style={{marginRight: '5px'}}>{this.buttonTextBasedOnStatus(val.status)}</button>
