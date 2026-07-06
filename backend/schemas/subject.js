@@ -3,7 +3,8 @@ var mongoose = require('mongoose')
 var subjectSchema = new mongoose.Schema({
   name : {
     type : String,
-    required : true
+    required : true,
+    unique : true
   },
   status : {
     type : Boolean,
@@ -13,11 +14,6 @@ var subjectSchema = new mongoose.Schema({
   createdBy : {
     type : mongoose.Schema.Types.ObjectId,
     ref : 'admin'
-  },
-  organizationId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'organization',
-    required: true
   }
 },
 {

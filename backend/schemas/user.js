@@ -26,11 +26,6 @@ var userSchema = new mongoose.Schema({
   createdBy : {
     type : mongoose.Schema.Types.ObjectId,
     ref : 'admin'
-  },
-  organizationId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'organization',
-    required: false
   }
 
 },
