@@ -85,7 +85,17 @@ class TestResultStudent extends React.Component {
               </TableRow>
             <TableRow>
               <TableCell></TableCell>
-              <TableCell><Button onClick={(event)=>(this.goBack(event))}>Back</Button></TableCell>
+              <TableCell>
+                <Button onClick={(event)=>(this.goBack(event))}>Back</Button>
+                <Button 
+                  onClick={() => window.print()} 
+                  variant="contained" 
+                  color="primary" 
+                  style={{marginLeft: '10px'}}
+                >
+                  Download PDF
+                </Button>
+              </TableCell>
             </TableRow>
           </TableBody>
         </Table>
