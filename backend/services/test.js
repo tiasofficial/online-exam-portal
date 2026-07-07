@@ -692,13 +692,40 @@ var editExamQuestion = async (req, res, next) => {
 
     let diffMarks = parseInt(marks) - question.marks;
     
+    if (!question.optionImages || question.optionImages.length < 4) {
+      question.optionImages = [
+        question.optionImages?.[0] || '', 
+        question.optionImages?.[1] || '', 
+        question.optionImages?.[2] || '', 
+        question.optionImages?.[3] || ''
+      ];
+    }
+
     // Process uploaded images
     if (req.files) {
-      if (req.files['bodyImage']) question.bodyImage = await uploadFile(req.files['bodyImage'][0].buffer, req.files['bodyImage'][0].originalname, req.files['bodyImage'][0].mimetype);
-      if (req.files['optImg1']) question.optionImages[0] = await uploadFile(req.files['optImg1'][0].buffer, req.files['optImg1'][0].originalname, req.files['optImg1'][0].mimetype);
-      if (req.files['optImg2']) question.optionImages[1] = await uploadFile(req.files['optImg2'][0].buffer, req.files['optImg2'][0].originalname, req.files['optImg2'][0].mimetype);
-      if (req.files['optImg3']) question.optionImages[2] = await uploadFile(req.files['optImg3'][0].buffer, req.files['optImg3'][0].originalname, req.files['optImg3'][0].mimetype);
-      if (req.files['optImg4']) question.optionImages[3] = await uploadFile(req.files['optImg4'][0].buffer, req.files['optImg4'][0].originalname, req.files['optImg4'][0].mimetype);
+      let imagesModified = false;
+      if (req.files['bodyImage']) {
+        question.bodyImage = await uploadFile(req.files['bodyImage'][0].buffer, req.files['bodyImage'][0].originalname, req.files['bodyImage'][0].mimetype);
+      }
+      if (req.files['optImg1']) {
+        question.optionImages[0] = await uploadFile(req.files['optImg1'][0].buffer, req.files['optImg1'][0].originalname, req.files['optImg1'][0].mimetype);
+        imagesModified = true;
+      }
+      if (req.files['optImg2']) {
+        question.optionImages[1] = await uploadFile(req.files['optImg2'][0].buffer, req.files['optImg2'][0].originalname, req.files['optImg2'][0].mimetype);
+        imagesModified = true;
+      }
+      if (req.files['optImg3']) {
+        question.optionImages[2] = await uploadFile(req.files['optImg3'][0].buffer, req.files['optImg3'][0].originalname, req.files['optImg3'][0].mimetype);
+        imagesModified = true;
+      }
+      if (req.files['optImg4']) {
+        question.optionImages[3] = await uploadFile(req.files['optImg4'][0].buffer, req.files['optImg4'][0].originalname, req.files['optImg4'][0].mimetype);
+        imagesModified = true;
+      }
+      if (imagesModified) {
+        question.markModified('optionImages');
+      }
     }
 
     question.body = body || ' ';
