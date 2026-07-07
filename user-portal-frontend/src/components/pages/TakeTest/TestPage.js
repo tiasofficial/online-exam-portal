@@ -113,7 +113,54 @@ const useStyles = (theme) => ({
     '&:hover': {
       backgroundColor: '#357abd',
     },
+    [theme.breakpoints.down('sm')]: {
+      padding: '10px 0',
+      fontSize: '16px',
+    }
   },
+  actionButton: {
+    textTransform: 'none',
+    fontWeight: 'bold',
+    borderColor: '#ccc',
+    fontSize: '18px',
+    padding: '10px 20px',
+    flexGrow: 1,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '14px',
+      padding: '6px 10px',
+    }
+  },
+  actionButtonPrimary: {
+    textTransform: 'none',
+    fontWeight: 'bold',
+    fontSize: '18px',
+    padding: '10px 20px',
+    flexGrow: 1,
+    [theme.breakpoints.down('sm')]: {
+      fontSize: '14px',
+      padding: '6px 10px',
+    }
+  },
+  userInfoBox: {
+    display: 'flex',
+    alignItems: 'center',
+    padding: '16px',
+    backgroundColor: '#fff',
+    borderBottom: '1px solid #ccc',
+    [theme.breakpoints.down('sm')]: {
+      padding: '8px',
+    }
+  },
+  userAvatar: {
+    width: 80,
+    height: 80,
+    marginRight: 15,
+    [theme.breakpoints.down('sm')]: {
+      width: 40,
+      height: 40,
+      marginRight: 10,
+    }
+  }
 });
 
 class TestPage extends React.Component {
@@ -299,20 +346,20 @@ class TestPage extends React.Component {
 
             <div className={classes.bottomActions}>
               <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap'}}>
-                <Button variant="outlined" onClick={this.handleMarkForReview} style={{textTransform: 'none', fontWeight: 'bold', borderColor: '#ccc', fontSize: '18px', padding: '10px 20px', flexGrow: 1}}>Mark for Review & Next</Button>
-                <Button variant="outlined" onClick={this.handleClearResponse} style={{textTransform: 'none', fontWeight: 'bold', borderColor: '#ccc', fontSize: '18px', padding: '10px 20px', flexGrow: 1}}>Clear Response</Button>
+                <Button variant="outlined" onClick={this.handleMarkForReview} className={classes.actionButton}>Mark for Review & Next</Button>
+                <Button variant="outlined" onClick={this.handleClearResponse} className={classes.actionButton}>Clear Response</Button>
               </div>
               <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap'}}>
-                <Button variant="contained" style={{backgroundColor: '#7b1fa2', color: 'white', textTransform: 'none', fontWeight: 'bold', fontSize: '18px', padding: '10px 20px', flexGrow: 1}} onClick={this.handleSaveAndMarkForReview}>Save & Mark for Review</Button>
-                <Button variant="contained" color="primary" onClick={this.handleSaveNext} style={{textTransform: 'none', fontWeight: 'bold', fontSize: '18px', padding: '10px 20px', backgroundColor: '#4caf50', flexGrow: 1}}>Save & Next</Button>
+                <Button variant="contained" style={{backgroundColor: '#7b1fa2', color: 'white'}} onClick={this.handleSaveAndMarkForReview} className={classes.actionButtonPrimary}>Save & Mark for Review</Button>
+                <Button variant="contained" style={{backgroundColor: '#4caf50', color: 'white'}} onClick={this.handleSaveNext} className={classes.actionButtonPrimary}>Save & Next</Button>
               </div>
             </div>
           </div>
 
           {/* RIGHT PANEL */}
           <div className={classes.rightPanel}>
-            <Box display="flex" alignItems="center" p={2} bgcolor="#fff" borderBottom="1px solid #ccc">
-              <Avatar style={{width: 80, height: 80, marginRight: 15}} />
+            <Box className={classes.userInfoBox}>
+              <Avatar className={classes.userAvatar} />
               <Typography variant="h6" style={{fontWeight: 'bold', color: '#333'}}>
                 {user.username}
               </Typography>
