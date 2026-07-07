@@ -35,18 +35,30 @@ const useStyles = (theme) => ({
     display: 'flex',
     flexGrow: 1,
     overflow: 'hidden',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+      overflow: 'auto',
+    }
   },
   leftPanel: {
     flexGrow: 1,
     display: 'flex',
     flexDirection: 'column',
     borderRight: '1px solid #ccc',
+    [theme.breakpoints.down('sm')]: {
+      borderRight: 'none',
+      borderBottom: '1px solid #ccc',
+      minHeight: '60vh',
+    }
   },
   rightPanel: {
     width: '400px',
     display: 'flex',
     flexDirection: 'column',
     backgroundColor: '#f5f5f5',
+    [theme.breakpoints.down('sm')]: {
+      width: '100%',
+    }
   },
   tabsStrip: {
     display: 'flex',
@@ -84,6 +96,11 @@ const useStyles = (theme) => ({
     padding: '10px 20px',
     borderTop: '1px solid #ccc',
     backgroundColor: '#f9f9f9',
+    [theme.breakpoints.down('sm')]: {
+      flexDirection: 'column',
+      gap: '10px',
+      padding: '10px',
+    }
   },
   submitBtn: {
     backgroundColor: '#4a90e2',
@@ -281,13 +298,13 @@ class TestPage extends React.Component {
             </div>
 
             <div className={classes.bottomActions}>
-              <div style={{display: 'flex', gap: '10px'}}>
-                <Button variant="outlined" onClick={this.handleMarkForReview} style={{textTransform: 'none', fontWeight: 'bold', borderColor: '#ccc', fontSize: '18px', padding: '10px 20px'}}>Mark for Review & Next</Button>
-                <Button variant="outlined" onClick={this.handleClearResponse} style={{textTransform: 'none', fontWeight: 'bold', borderColor: '#ccc', fontSize: '18px', padding: '10px 20px'}}>Clear Response</Button>
+              <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap'}}>
+                <Button variant="outlined" onClick={this.handleMarkForReview} style={{textTransform: 'none', fontWeight: 'bold', borderColor: '#ccc', fontSize: '18px', padding: '10px 20px', flexGrow: 1}}>Mark for Review & Next</Button>
+                <Button variant="outlined" onClick={this.handleClearResponse} style={{textTransform: 'none', fontWeight: 'bold', borderColor: '#ccc', fontSize: '18px', padding: '10px 20px', flexGrow: 1}}>Clear Response</Button>
               </div>
-              <div style={{display: 'flex', gap: '10px'}}>
-                <Button variant="contained" style={{backgroundColor: '#7b1fa2', color: 'white', textTransform: 'none', fontWeight: 'bold', fontSize: '18px', padding: '10px 20px'}} onClick={this.handleSaveAndMarkForReview}>Save & Mark for Review</Button>
-                <Button variant="contained" color="primary" onClick={this.handleSaveNext} style={{textTransform: 'none', fontWeight: 'bold', fontSize: '18px', padding: '10px 20px', backgroundColor: '#4caf50'}}>Save & Next</Button>
+              <div style={{display: 'flex', gap: '10px', flexWrap: 'wrap'}}>
+                <Button variant="contained" style={{backgroundColor: '#7b1fa2', color: 'white', textTransform: 'none', fontWeight: 'bold', fontSize: '18px', padding: '10px 20px', flexGrow: 1}} onClick={this.handleSaveAndMarkForReview}>Save & Mark for Review</Button>
+                <Button variant="contained" color="primary" onClick={this.handleSaveNext} style={{textTransform: 'none', fontWeight: 'bold', fontSize: '18px', padding: '10px 20px', backgroundColor: '#4caf50', flexGrow: 1}}>Save & Next</Button>
               </div>
             </div>
           </div>
