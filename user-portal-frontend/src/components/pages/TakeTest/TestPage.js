@@ -8,6 +8,7 @@ import QuestionList from "../../molecues/TestView/QuestionList";
 import TestQuestion from "../../molecues/TestView/TestQuestion";
 import AlertBox from '../../atoms/Alertbox/AlertBox';
 import { endTestAction, saveAnswerAction, selectedOptionAction } from "../../../redux/actions/takeTestAction";
+import { setAlert } from "../../../redux/actions/alertAction";
 
 const useStyles = (theme) => ({
   root: {
@@ -189,22 +190,37 @@ class TestPage extends React.Component {
     this.handleClearResponse = this.handleClearResponse.bind(this);
   }
 
-  handleContextMenu(e) { e.preventDefault(); }
-  handleCopy(e) { 
-    e.preventDefault(); 
-    if(e.clipboardData) { e.clipboardData.setData('text/plain', 'Screen copying disabled.'); }
-  }
-  
-  handleKeyDown(e) {
-    if (e.key === 'PrintScreen' || ((e.ctrlKey || e.metaKey) && e.key === 'c') || ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 's' || e.key === 'S')) || ((e.ctrlKey || e.metaKey) && e.key === 'p')) {
-      e.preventDefault();
-      alert("Copying or taking screenshots is disabled during the test.");
+  handleContextMenu = (e) => { e.preventDefault(); }
+
+  handleKeyDown = (e) => {
+    if (e.key === 'PrintScreen') {
+      e.preventDefault(); 
+      this.props.setAlert({
+        isAlert: true,
+        type: "error",
+        title: "Copying or taking screenshots is disabled during the test."
+      });
     }
   }
 
-  handleVisibilityChange() {
+  handleCopy = (e) => {
+    if (window.location.pathname === '/takeTestPage') {
+      e.preventDefault();
+      this.props.setAlert({
+        isAlert: true,
+        type: "error",
+        title: "Copying or taking screenshots is disabled during the test."
+      });
+    }
+  }
+
+  handleVisibilityChange = () => {
     if (document.hidden) {
-      alert("Warning: You have switched tabs or minimized the window during the test!");
+      this.props.setAlert({
+        isAlert: true,
+        type: "warning",
+        title: "Warning: You have switched tabs or minimized the window during the test!"
+      });
     }
   }
 
@@ -267,7 +283,11 @@ class TestPage extends React.Component {
   handleSaveAndMarkForReview = () => {
     const isAnswered = this.props.taketest.answersheet.answers[this.state.curIndex] !== null;
     if(!isAnswered) {
-      alert("Please select an answer first to Save & Mark for Review. Otherwise use 'Mark for Review & Next'.");
+      this.props.setAlert({
+        isAlert: true,
+        type: "warning",
+        title: "Please select an answer first to Save & Mark for Review. Otherwise use 'Mark for Review & Next'."
+      });
       return;
     }
     this.updateCurrentStatusAndGoNext(4);
@@ -390,5 +410,6 @@ const mapStatetoProps = state => ({
 export default withStyles(useStyles)(connect(mapStatetoProps, {
   endTestAction,
   saveAnswerAction,
-  selectedOptionAction
+  selectedOptionAction,
+  setAlert
 })(TestPage));
