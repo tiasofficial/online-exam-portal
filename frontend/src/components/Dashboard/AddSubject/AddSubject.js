@@ -28,8 +28,13 @@ class AddSubject extends React.Component {
   handleSubmit= (event) => {
     event.preventDefault();
     
+    let apiUrl = apis.BASE + apis.ADD_SUBJECT;
+    if (this.props.user.userDetails.usertype === 'TEACHER') {
+      apiUrl = apis.BASE + apis.TEACHER_ADD_SUBJECT;
+    }
+
     console.log(this.state);
-    axios.post(apis.BASE + apis.ADD_SUBJECT, {
+    axios.post(apiUrl, {
       name : this.state.name
     },{
       headers:{
