@@ -23,6 +23,7 @@ const apis = {
   UNBLOCK_SUBJECT : "/api/v1/admin/unblockSubject",
   ADD_TEACHER : "/api/v1/admin/register",
   ADD_SUBJECT : "/api/v1/admin/addSubject",
+  TEACHER_ADD_SUBJECT : "/api/v1/user/createSubject",
   DELETE_USER : "/api/v1/admin/deleteUser",
   GET_CLASSES : "/api/v1/class/all",
   ADD_CLASS_STUDENT : "/api/v1/class/addStudent",
