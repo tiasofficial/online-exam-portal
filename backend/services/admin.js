@@ -174,7 +174,9 @@ var adminDetails = (req,res,next) => {
       success:true,
       user : {
         username : req.user.username,
-        _id : req.user._id
+        _id : req.user._id,
+        usertype: req.user.usertype,
+        organizationId: req.user.organizationId
       }
     });
   }

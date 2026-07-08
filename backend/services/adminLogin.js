@@ -38,7 +38,9 @@ var adminLogin = (req, res, next) => {
             message : 'login successful',
             admin : {
               username : admin.username,
-              _id : admin._id
+              _id : admin._id,
+              usertype : admin.usertype,
+              organizationId : admin.organizationId
             },
             token : token
           })
