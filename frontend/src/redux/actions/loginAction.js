@@ -42,13 +42,13 @@ export const getAdminDetails = () => {
           })
         } else {
           Auth.deleteToken();
-          return (<Navigate to="/"/>);
+          dispatch({ type: ActionTypes.LOGOUT });
         }
       
     }).catch(err => {
       console.log(err);
       Auth.deleteToken();
-      return (<Navigate to="/"/>);
+      dispatch({ type: ActionTypes.LOGOUT });
     })
     
   }
