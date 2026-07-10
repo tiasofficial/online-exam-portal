@@ -59,12 +59,12 @@ export const getUserDetails = () => {
           })
         } else {
           Auth.deleteToken();
-          return (<Navigate to="/"/>);
+          dispatch({ type: ActionTypes.LOGOUT });
         }
       
     }).catch(err=> {
       Auth.deleteToken();
-      return (<Navigate to="/"/>);
+      dispatch({ type: ActionTypes.LOGOUT });
     }) 
     
   }
