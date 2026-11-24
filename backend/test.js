@@ -2,6 +2,7 @@ var testModel = require('../models/test');
 var questionModel = require('../models/question');
 const testRegistrationModel = require('../models/testRegistration');
 const classModel = require('../models/class');
+const answersheetModel = require('../models/answersheet');
 const { uploadFile } = require('./firebase');
 
 var getTestStatus = (test) => {
@@ -605,9 +606,39 @@ var getAssignedStudents = async (req, res, next) => {
   }
   try {
     const testid = req.body.testid;
-    const registrations = await testRegistrationModel.find({ test: testid });
-    const studentIds = registrations.map(reg => reg.user);
-    res.json({ success: true, studentIds: studentIds });
+    const [registrations, answersheets] = await Promise.all([
+      testRegistrationModel.find({ test: testid }).populate('user', 'username email'),
+      answersheetModel.find({ test: testid })
+    ]);
+
+    const answersheetMap = new Map();
+    answersheets.forEach(sheet => {
+      if (sheet.student) {
+        answersheetMap.set(sheet.student.toString(), sheet);
+      }
+    });
+
+    const studentIds = [];
+    const studentsData = [];
+
+    for (const reg of registrations) {
+      if (!reg.user) continue;
+      const sId = reg.user._id ? reg.user._id.toString() : reg.user.toString();
+      studentIds.push(sId);
+
+      const sheet = answersheetMap.get(sId);
+      studentsData.push({
+        id: sId,
+        name: reg.user.username || '',
+        email: reg.user.email || '',
+        completed: sheet ? !!sheet.completed : false,
+        started: !!sheet,
+        score: sheet ? (sheet.score || 0) : 0,
+        reassignEndTime: reg.reassignEndTime || (sheet ? sheet.reassignEndTime : null) || null
+      });
+    }
+
+    res.json({ success: true, studentIds: studentIds, studentsData: studentsData });
   } catch(err) {
     console.log(err);
     res.status(500).json({ success: false, message: "Error fetching assigned students" });

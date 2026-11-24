@@ -128,11 +128,30 @@ class CreateTestForm extends React.Component {
       defaultStudents = selectedClassObj.students.map(s => s._id);
     }
 
+    const isJeeClass = selectedClassObj && selectedClassObj.name && selectedClassObj.name.toLowerCase().includes('jee');
+    let defaultSubjects = [];
+    let defaultDuration = this.state.duration;
+    let defaultMarks = this.state.maxmarks;
+
+    if (isJeeClass && selectedClassObj.subjects) {
+      // Order JEE subjects strictly: Physics, Chemistry, Maths/Mathematics
+      const pSub = selectedClassObj.subjects.find(s => s.name.toLowerCase().includes('physic'));
+      const cSub = selectedClassObj.subjects.find(s => s.name.toLowerCase().includes('chem'));
+      const mSub = selectedClassObj.subjects.find(s => s.name.toLowerCase().includes('math'));
+
+      const ordered = [pSub, cSub, mSub].filter(Boolean).map(s => s._id);
+      defaultSubjects = ordered.length > 0 ? ordered : selectedClassObj.subjects.map(s => s._id);
+      defaultDuration = 180; // Standard 3 hours for JEE
+      defaultMarks = 300;    // Standard 300 marks for JEE
+    }
+
     this.setState({
       ...this.state,
       targetClass: classId,
       assignedStudents: defaultStudents,
-      subjects: [] // Reset subjects when class changes
+      subjects: defaultSubjects,
+      duration: defaultDuration,
+      maxmarks: defaultMarks
     });
   }
 
@@ -238,11 +257,11 @@ class CreateTestForm extends React.Component {
 
   render() {
     if (this.state.setupStep === 1 && this.state.createdTestId) {
-      return <PaperSetup testId={this.state.createdTestId} targetSubject={this.state.subjects[0]} onFinish={() => this.setState({ setupStep: 2 })} />
+      return <PaperSetup testId={this.state.createdTestId} subjects={this.state.subjects} targetSubject={this.state.subjects[0]} onFinish={() => this.setState({ setupStep: 2 })} />
     }
 
     if (this.state.setupStep === 2 && this.state.createdTestId) {
-      return <PaperPreview testId={this.state.createdTestId} targetSubject={this.state.subjects[0]} onFinish={() => this.setState({ setupStep: 0, createdTestId: null, title: '', subjects: [], targetClass: '', assignedStudents: [] })} />
+      return <PaperPreview testId={this.state.createdTestId} subjects={this.state.subjects} targetSubject={this.state.subjects[0]} onFinish={() => this.setState({ setupStep: 0, createdTestId: null, title: '', subjects: [], targetClass: '', assignedStudents: [] })} />
     }
 
     if(this.props.subjectDetails.retrived === false) {

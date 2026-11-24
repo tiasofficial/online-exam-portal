@@ -1,7 +1,7 @@
 import React from "react";
 import { withStyles } from "@material-ui/styles";
 import { connect } from "react-redux";
-import { TableBody, TableCell, TableRow, Table, TableHead, TableContainer, Paper, Button, Dialog, DialogTitle, DialogContent, DialogActions, Checkbox, FormControlLabel, FormGroup } from "@material-ui/core";
+import { TableBody, TableCell, TableRow, Table, TableHead, TableContainer, Paper, Button, Dialog, DialogTitle, DialogContent, DialogActions, Checkbox, FormControlLabel, FormGroup, CircularProgress } from "@material-ui/core";
 import { getTestDetailsFromId, getTestQuestionsForTeacherAction, getAllTestAction } from "../../../redux/actions/teacherTestAction";
 import axios from "axios";
 import apis from "../../../helper/Apis";
@@ -39,7 +39,9 @@ class TestTable extends React.Component {
       assignTestId: null,
       assignTestTitle: "",
       allStudents: [],
-      assignedStudentIds: []
+      assignedStudentIds: [],
+      loadingAssignId: null,
+      loadingResultsId: null
     }
   }
 
@@ -60,6 +62,7 @@ class TestTable extends React.Component {
   }
 
   onResultsClick = async (event, id, title) => {
+    this.setState({ loadingResultsId: id });
     try {
       const response = await axios.post(apis.BASE + apis.GET_TEACHER_RESULTS, { testid: id }, {
         headers: { 'Authorization': `Bearer ${Auth.retriveToken()}` }
@@ -74,6 +77,8 @@ class TestTable extends React.Component {
       }
     } catch (err) {
       console.log(err);
+    } finally {
+      this.setState({ loadingResultsId: null });
     }
   }
 
@@ -97,23 +102,27 @@ class TestTable extends React.Component {
   }
 
   onAssignClick = async (event, id, title) => {
+    this.setState({ loadingAssignId: id });
     try {
-      const resAll = await axios.get(apis.BASE + apis.GET_ALL_STUDENTS_TEACHER, {
-        headers: { 'Authorization': `Bearer ${Auth.retriveToken()}` }
-      });
-      const resAssigned = await axios.post(apis.BASE + apis.GET_ASSIGNED_STUDENTS, { testid: id }, {
-        headers: { 'Authorization': `Bearer ${Auth.retriveToken()}` }
-      });
+      const headers = { 'Authorization': `Bearer ${Auth.retriveToken()}` };
+      const [resAll, resAssigned] = await Promise.all([
+        axios.get(apis.BASE + apis.GET_ALL_STUDENTS_TEACHER, { headers }),
+        axios.post(apis.BASE + apis.GET_ASSIGNED_STUDENTS, { testid: id }, { headers })
+      ]);
       if(resAll.data.success && resAssigned.data.success) {
         this.setState({
           assignOpen: true,
           assignTestId: id,
           assignTestTitle: title,
           allStudents: resAll.data.students,
-          assignedStudentIds: resAssigned.data.studentIds
+          assignedStudentIds: resAssigned.data.studentIds || []
         });
       }
-    } catch(err) { console.log(err); }
+    } catch(err) {
+      console.log(err);
+    } finally {
+      this.setState({ loadingAssignId: null });
+    }
   }
 
   handleAssignClose = () => {
@@ -170,12 +179,32 @@ class TestTable extends React.Component {
                   <Button variant="outlined" color="primary" onClick={(event) => this.onPreviewClick(event, test._id, test.title)} style={{marginRight: '10px'}}>
                     Preview
                   </Button>
-                  <Button variant="outlined" color="primary" onClick={(event) => this.onAssignClick(event, test._id, test.title)} style={{marginRight: '10px'}}>
-                    Assign Students
+                  <Button 
+                    variant="outlined" 
+                    color="primary" 
+                    disabled={this.state.loadingAssignId === test._id}
+                    onClick={(event) => this.onAssignClick(event, test._id, test.title)} 
+                    style={{marginRight: '10px', minWidth: '130px'}}
+                  >
+                    {this.state.loadingAssignId === test._id ? (
+                      <CircularProgress size={20} color="inherit" />
+                    ) : (
+                      "Assign Students"
+                    )}
                   </Button>
                   {test.status === 'TEST_STARTED' || test.status === 'TEST_COMPLETE' || test.status === 'RESULT_DECLARED' ? (
-                    <Button variant="outlined" color="secondary" onClick={(event) => this.onResultsClick(event, test._id, test.title)} style={{marginRight: '10px'}}>
-                      Results
+                    <Button 
+                      variant="outlined" 
+                      color="secondary" 
+                      disabled={this.state.loadingResultsId === test._id}
+                      onClick={(event) => this.onResultsClick(event, test._id, test.title)} 
+                      style={{marginRight: '10px', minWidth: '80px'}}
+                    >
+                      {this.state.loadingResultsId === test._id ? (
+                        <CircularProgress size={20} color="inherit" />
+                      ) : (
+                        "Results"
+                      )}
                     </Button>
                   ) : null}
                   <Button variant="outlined" style={{color: 'red', borderColor: 'red'}} onClick={(event) => this.onDeleteClick(event, test._id)}>

@@ -1,4 +1,4 @@
-import { Button, withStyles } from "@material-ui/core";
+import { Button, withStyles, Dialog, DialogTitle, DialogContent, DialogActions, DialogContentText } from "@material-ui/core";
 import React from "react";
 import { connect } from "react-redux";
 import { Navigate } from "react-router-dom";
@@ -178,6 +178,7 @@ class TestPage extends React.Component {
     this.state = {
       curIndex: 0,
       questionStatuses: initialStatuses,
+      confirmSubmitOpen: false,
     };
 
     this.handleContextMenu = this.handleContextMenu.bind(this);
@@ -319,7 +320,12 @@ class TestPage extends React.Component {
   }
 
   endtest() {
+    this.setState({ confirmSubmitOpen: false });
     this.props.endTestAction();
+  }
+
+  jumpToSubjectSection = (startIndex) => {
+    this.setCurIndex(startIndex);
   }
 
   render() {
@@ -328,8 +334,24 @@ class TestPage extends React.Component {
       return (<Navigate to='/' />);
     }
     
-    var timerTime = taketest.test.duration * 1000 - (Date.now() - Date.parse(taketest.answersheet.startTime));
-    const testSubject = taketest.test.title; 
+    const parsedStartTime = Date.parse(taketest.answersheet.startTime);
+    let elapsed = !isNaN(parsedStartTime) ? (Date.now() - parsedStartTime) : 0;
+    if (elapsed < 0 || elapsed > taketest.test.duration * 1000) {
+      elapsed = 0; // Guard against client clock skew
+    }
+    var timerTime = Math.max(0, taketest.test.duration * 1000 - elapsed);
+
+    const testTitle = (taketest.test && taketest.test.title) || '';
+    const targetClassName = (taketest.test && (taketest.test.targetClassName || (taketest.test.targetClass && taketest.test.targetClass.name))) || '';
+    const isJee = testTitle.toLowerCase().includes('jee') || targetClassName.toLowerCase().includes('jee') || (taketest.answersheet && taketest.answersheet.answers && taketest.answersheet.answers.length === 75);
+    const isNeet = testTitle.toLowerCase().includes('neet') || targetClassName.toLowerCase().includes('neet') || (taketest.answersheet && taketest.answersheet.answers && taketest.answersheet.answers.length === 180);
+
+    let activeSubjectName = testTitle;
+    if (isJee) {
+      activeSubjectName = this.state.curIndex < 25 ? 'Physics' : this.state.curIndex < 50 ? 'Chemistry' : 'Mathematics';
+    } else if (isNeet) {
+      activeSubjectName = this.state.curIndex < 45 ? 'Physics' : this.state.curIndex < 90 ? 'Chemistry' : 'Biology';
+    }
 
     return (
       <div className={classes.root} style={{ userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none', msUserSelect: 'none' }}>
@@ -341,10 +363,62 @@ class TestPage extends React.Component {
           </Box>
         </Box>
 
-        {/* SUB BAR */}
+        {/* SUB BAR - Fixed Subject Sections */}
         <div className={classes.subBar}>
           <div style={{display: 'flex', gap: '5px', alignItems: 'center'}}>
-            <div className={classes.activeTab} style={{borderTopLeftRadius: '0px', borderTopRightRadius: '0px'}}>{testSubject}</div>
+            {isJee ? (
+              <React.Fragment>
+                <div 
+                  className={this.state.curIndex < 25 ? classes.activeTab : classes.inactiveTab}
+                  onClick={() => this.jumpToSubjectSection(0)}
+                  style={{cursor: 'pointer'}}
+                >
+                  Physics (1-25)
+                </div>
+                <div 
+                  className={this.state.curIndex >= 25 && this.state.curIndex < 50 ? classes.activeTab : classes.inactiveTab}
+                  onClick={() => this.jumpToSubjectSection(25)}
+                  style={{cursor: 'pointer'}}
+                >
+                  Chemistry (26-50)
+                </div>
+                <div 
+                  className={this.state.curIndex >= 50 ? classes.activeTab : classes.inactiveTab}
+                  onClick={() => this.jumpToSubjectSection(50)}
+                  style={{cursor: 'pointer'}}
+                >
+                  Mathematics (51-75)
+                </div>
+              </React.Fragment>
+            ) : isNeet ? (
+              <React.Fragment>
+                <div 
+                  className={this.state.curIndex < 45 ? classes.activeTab : classes.inactiveTab}
+                  onClick={() => this.jumpToSubjectSection(0)}
+                  style={{cursor: 'pointer'}}
+                >
+                  Physics (1-45)
+                </div>
+                <div 
+                  className={this.state.curIndex >= 45 && this.state.curIndex < 90 ? classes.activeTab : classes.inactiveTab}
+                  onClick={() => this.jumpToSubjectSection(45)}
+                  style={{cursor: 'pointer'}}
+                >
+                  Chemistry (46-90)
+                </div>
+                <div 
+                  className={this.state.curIndex >= 90 ? classes.activeTab : classes.inactiveTab}
+                  onClick={() => this.jumpToSubjectSection(90)}
+                  style={{cursor: 'pointer'}}
+                >
+                  Biology (91-180)
+                </div>
+              </React.Fragment>
+            ) : (
+              <div className={classes.activeTab} style={{borderTopLeftRadius: '0px', borderTopRightRadius: '0px'}}>
+                {testTitle}
+              </div>
+            )}
           </div>
           <div style={{display: 'flex', alignItems: 'center', fontWeight: 'bold'}}>
             Time Left: &nbsp; <Timer time={timerTime} />
@@ -390,14 +464,36 @@ class TestPage extends React.Component {
               questionStatuses={this.state.questionStatuses}
               callback={this.setCurIndex} 
               curIndex={this.state.curIndex}
-              subject={testSubject}
+              subject={activeSubjectName}
             />
 
-            <Button className={classes.submitBtn} onClick={() => this.endtest()}>
+            <Button className={classes.submitBtn} onClick={() => this.setState({ confirmSubmitOpen: true })}>
               Submit Test
             </Button>
           </div>
         </div>
+
+        {/* Confirmation Dialog before Submitting Test */}
+        <Dialog
+          open={this.state.confirmSubmitOpen}
+          onClose={() => this.setState({ confirmSubmitOpen: false })}
+          aria-labelledby="confirm-submit-dialog-title"
+        >
+          <DialogTitle id="confirm-submit-dialog-title">Submit Exam Confirmation</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Are you sure you want to submit your exam? Once submitted, you cannot change any answers.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={() => this.setState({ confirmSubmitOpen: false })} color="primary">
+              Cancel & Continue Exam
+            </Button>
+            <Button onClick={() => this.endtest()} variant="contained" color="secondary" autoFocus>
+              Yes, Submit Exam
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     );
   }

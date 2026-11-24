@@ -62,8 +62,9 @@ class PaperSetup extends Component {
       option4: '',
       optImg4: null,
       answer: '1',
-      marks: 1,
+      marks: 4,
       explanation: '',
+      selectedSubject: props.targetSubject || '',
       questions: [], // Added questions
       fileInputKey: Date.now()
     };
@@ -79,11 +80,35 @@ class PaperSetup extends Component {
         headers: { 'Authorization': `Bearer ${Auth.retriveToken()}` }
       });
       if (qResponse.data.success) {
-        this.setState({ questions: qResponse.data.questions });
+        const questions = qResponse.data.questions || [];
+        this.setState({ questions });
+
+        // Auto-select subject for JEE Main if multiple subjects exist
+        const availableSubjects = this.getAvailableSubjects();
+        if (availableSubjects.length > 1) {
+          const count = questions.length;
+          // In JEE Main standard order: 0-24 Physics (index 0), 25-49 Chemistry (index 1), 50+ Maths (index 2)
+          let autoSubIndex = 0;
+          if (count >= 25 && count < 50 && availableSubjects.length > 1) autoSubIndex = 1;
+          else if (count >= 50 && availableSubjects.length > 2) autoSubIndex = 2;
+
+          this.setState({ selectedSubject: availableSubjects[autoSubIndex]._id });
+        }
       }
     } catch (err) {
       console.log(err);
     }
+  }
+
+  getAvailableSubjects = () => {
+    const allSubjects = (this.props.subjectDetails && this.props.subjectDetails.subjects) || [];
+    if (this.props.subjects && this.props.subjects.length > 0) {
+      return allSubjects.filter(s => this.props.subjects.includes(s._id));
+    }
+    if (this.props.targetSubject) {
+      return allSubjects.filter(s => s._id === this.props.targetSubject);
+    }
+    return allSubjects;
   }
 
   handleInputChange = (e) => {
@@ -101,10 +126,11 @@ class PaperSetup extends Component {
       return;
     }
 
+    const targetSub = this.state.selectedSubject || this.props.targetSubject;
     const formData = new FormData();
     formData.append('testId', this.props.testId);
-    if (this.props.targetSubject) {
-      formData.append('targetSubject', this.props.targetSubject);
+    if (targetSub) {
+      formData.append('targetSubject', targetSub);
     }
     formData.append('body', this.state.body);
     formData.append('option1', this.state.option1);
@@ -156,12 +182,30 @@ class PaperSetup extends Component {
 
   render() {
     const { classes, onFinish } = this.props;
+    const availableSubjects = this.getAvailableSubjects();
+
     return (
       <Paper className={classes.root}>
         <Typography variant="h5" gutterBottom>Paper Setup</Typography>
         <Typography variant="subtitle1" gutterBottom>Add questions specifically for this exam.</Typography>
         
         <form onSubmit={this.handleAddQuestion} className={classes.form}>
+          {availableSubjects && availableSubjects.length > 0 && (
+            <FormControl variant="outlined" margin="normal">
+              <InputLabel>Subject Section</InputLabel>
+              <Select 
+                name="selectedSubject" 
+                value={this.state.selectedSubject} 
+                onChange={this.handleInputChange} 
+                label="Subject Section"
+              >
+                {availableSubjects.map(s => (
+                  <MenuItem key={s._id} value={s._id}>{s.name}</MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
+
           <div className={classes.optionContainer}>
             <Typography variant="h6">Question</Typography>
             <TextField fullWidth label="Question Text" name="body" value={this.state.body} onChange={this.handleInputChange} margin="normal" variant="outlined" />
@@ -235,4 +279,8 @@ class PaperSetup extends Component {
   }
 }
 
-export default connect(null, { setAlert })(withStyles(useStyles)(PaperSetup));
+const mapStateToProps = state => ({
+  subjectDetails: state.subjectDetails
+});
+
+export default connect(mapStateToProps, { setAlert })(withStyles(useStyles)(PaperSetup));
