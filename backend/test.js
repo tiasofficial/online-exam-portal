@@ -3,7 +3,8 @@ var questionModel = require('../models/question');
 const testRegistrationModel = require('../models/testRegistration');
 const classModel = require('../models/class');
 const answersheetModel = require('../models/answersheet');
-const { uploadFile } = require('./firebase');
+const userModel = require('../models/user');
+const { uploadFile } = require('./cloudinary');
 
 var getTestStatus = (test) => {
   if(test.status === 'CANCELLED')
@@ -107,6 +108,9 @@ var createTest = async (req,res,next) => {
     targetSubject : req.body.targetSubject,
     createdBy : creator._id
   })
+  if (creator.organizationId) {
+    tempdata.organizationId = creator.organizationId;
+  }
   tempdata.save(async (err, savedTest)=>{
     if (err){
       console.log(err);
@@ -160,7 +164,9 @@ var getAllTest = (req,res,next) => {
   }
 
   try {
-    testModel.find().sort({startTime:-1})
+    var orgId = req.user && req.user.usertype === 'TEACHER' ? (req.user.organizationId || null) : null;
+    var query = req.user && req.user.usertype === 'TEACHER' ? { organizationId: orgId } : {};
+    testModel.find(query).sort({startTime:-1})
     .then((result)=>{
       for(x in result) {
         var correctStatus = getTestStatus(result[x]);
@@ -270,7 +276,7 @@ var getAllTestWithStudentRegisterCheck = async(req,res,next) => {
   var studentClasses = await classModel.find({ students: creator._id }, { _id: 1 });
   var classIds = studentClasses.map(c => c._id);
 
-  var tests = await testModel.find({ $or: [{ targetClass: { $in: classIds } }, { targetClass: null }] }).sort({startTime:1}).catch(err=>{
+  var tests = await testModel.find({ organizationId: creator.organizationId, $or: [{ targetClass: { $in: classIds } }, { targetClass: null }] }).sort({startTime:1}).catch(err=>{
     console.log(err);
     res.json({
       success : false,
@@ -333,7 +339,7 @@ var getUpcomingTestforStudent = async(req,res,next) => {
   var studentClasses = await classModel.find({ students: creator._id }, { _id: 1 });
   var classIds = studentClasses.map(c => c._id);
 
-  var tests = await testModel.find({ endTime:{$gt:Date.now()}, $or: [{ targetClass: { $in: classIds } }, { targetClass: null }] }).sort({startTime:1}).catch(err=>{
+  var tests = await testModel.find({ organizationId: creator.organizationId, endTime:{$gt:Date.now()}, $or: [{ targetClass: { $in: classIds } }, { targetClass: null }] }).sort({startTime:1}).catch(err=>{
     console.log(err);
     res.json({
       success : false,
@@ -605,37 +611,45 @@ var getAssignedStudents = async (req, res, next) => {
     return res.status(401).json({ success: false, message: "Permissions not granted!" });
   }
   try {
-    const testid = req.body.testid;
+    const testid = req.body.testid || req.body.testId;
+    if (!testid) {
+      return res.status(400).json({ success: false, message: "Test ID is required" });
+    }
     const [registrations, answersheets] = await Promise.all([
       testRegistrationModel.find({ test: testid }).populate('user', 'username email'),
       answersheetModel.find({ test: testid })
     ]);
 
     const answersheetMap = new Map();
-    answersheets.forEach(sheet => {
-      if (sheet.student) {
-        answersheetMap.set(sheet.student.toString(), sheet);
-      }
-    });
+    if (answersheets && Array.isArray(answersheets)) {
+      answersheets.forEach(sheet => {
+        if (sheet && sheet.student) {
+          answersheetMap.set(sheet.student.toString(), sheet);
+        }
+      });
+    }
 
     const studentIds = [];
     const studentsData = [];
 
-    for (const reg of registrations) {
-      if (!reg.user) continue;
-      const sId = reg.user._id ? reg.user._id.toString() : reg.user.toString();
-      studentIds.push(sId);
+    if (registrations && Array.isArray(registrations)) {
+      for (const reg of registrations) {
+        if (!reg || !reg.user) continue;
+        const sId = reg.user._id ? reg.user._id.toString() : (typeof reg.user === 'object' ? null : reg.user.toString());
+        if (!sId) continue;
+        studentIds.push(sId);
 
-      const sheet = answersheetMap.get(sId);
-      studentsData.push({
-        id: sId,
-        name: reg.user.username || '',
-        email: reg.user.email || '',
-        completed: sheet ? !!sheet.completed : false,
-        started: !!sheet,
-        score: sheet ? (sheet.score || 0) : 0,
-        reassignEndTime: reg.reassignEndTime || (sheet ? sheet.reassignEndTime : null) || null
-      });
+        const sheet = answersheetMap.get(sId);
+        studentsData.push({
+          id: sId,
+          name: reg.user.username || '',
+          email: reg.user.email || '',
+          completed: sheet ? !!sheet.completed : false,
+          started: !!sheet,
+          score: sheet ? (sheet.score || 0) : 0,
+          reassignEndTime: reg.reassignEndTime || (sheet ? sheet.reassignEndTime : null) || null
+        });
+      }
     }
 
     res.json({ success: true, studentIds: studentIds, studentsData: studentsData });
@@ -718,13 +732,40 @@ var editExamQuestion = async (req, res, next) => {
 
     let diffMarks = parseInt(marks) - question.marks;
     
+    if (!question.optionImages || question.optionImages.length < 4) {
+      question.optionImages = [
+        question.optionImages?.[0] || '', 
+        question.optionImages?.[1] || '', 
+        question.optionImages?.[2] || '', 
+        question.optionImages?.[3] || ''
+      ];
+    }
+
     // Process uploaded images
     if (req.files) {
-      if (req.files['bodyImage']) question.bodyImage = await uploadFile(req.files['bodyImage'][0].buffer, req.files['bodyImage'][0].originalname, req.files['bodyImage'][0].mimetype);
-      if (req.files['optImg1']) question.optionImages[0] = await uploadFile(req.files['optImg1'][0].buffer, req.files['optImg1'][0].originalname, req.files['optImg1'][0].mimetype);
-      if (req.files['optImg2']) question.optionImages[1] = await uploadFile(req.files['optImg2'][0].buffer, req.files['optImg2'][0].originalname, req.files['optImg2'][0].mimetype);
-      if (req.files['optImg3']) question.optionImages[2] = await uploadFile(req.files['optImg3'][0].buffer, req.files['optImg3'][0].originalname, req.files['optImg3'][0].mimetype);
-      if (req.files['optImg4']) question.optionImages[3] = await uploadFile(req.files['optImg4'][0].buffer, req.files['optImg4'][0].originalname, req.files['optImg4'][0].mimetype);
+      let imagesModified = false;
+      if (req.files['bodyImage']) {
+        question.bodyImage = await uploadFile(req.files['bodyImage'][0].buffer, req.files['bodyImage'][0].originalname, req.files['bodyImage'][0].mimetype);
+      }
+      if (req.files['optImg1']) {
+        question.optionImages[0] = await uploadFile(req.files['optImg1'][0].buffer, req.files['optImg1'][0].originalname, req.files['optImg1'][0].mimetype);
+        imagesModified = true;
+      }
+      if (req.files['optImg2']) {
+        question.optionImages[1] = await uploadFile(req.files['optImg2'][0].buffer, req.files['optImg2'][0].originalname, req.files['optImg2'][0].mimetype);
+        imagesModified = true;
+      }
+      if (req.files['optImg3']) {
+        question.optionImages[2] = await uploadFile(req.files['optImg3'][0].buffer, req.files['optImg3'][0].originalname, req.files['optImg3'][0].mimetype);
+        imagesModified = true;
+      }
+      if (req.files['optImg4']) {
+        question.optionImages[3] = await uploadFile(req.files['optImg4'][0].buffer, req.files['optImg4'][0].originalname, req.files['optImg4'][0].mimetype);
+        imagesModified = true;
+      }
+      if (imagesModified) {
+        question.markModified('optionImages');
+      }
     }
 
     question.body = body || ' ';

@@ -3,6 +3,7 @@ var questionModel = require('../models/question');
 const testRegistrationModel = require('../models/testRegistration');
 const classModel = require('../models/class');
 const answersheetModel = require('../models/answersheet');
+const userModel = require('../models/user');
 const { uploadFile } = require('./cloudinary');
 
 var getTestStatus = (test) => {
@@ -610,37 +611,45 @@ var getAssignedStudents = async (req, res, next) => {
     return res.status(401).json({ success: false, message: "Permissions not granted!" });
   }
   try {
-    const testid = req.body.testid;
+    const testid = req.body.testid || req.body.testId;
+    if (!testid) {
+      return res.status(400).json({ success: false, message: "Test ID is required" });
+    }
     const [registrations, answersheets] = await Promise.all([
       testRegistrationModel.find({ test: testid }).populate('user', 'username email'),
       answersheetModel.find({ test: testid })
     ]);
 
     const answersheetMap = new Map();
-    answersheets.forEach(sheet => {
-      if (sheet.student) {
-        answersheetMap.set(sheet.student.toString(), sheet);
-      }
-    });
+    if (answersheets && Array.isArray(answersheets)) {
+      answersheets.forEach(sheet => {
+        if (sheet && sheet.student) {
+          answersheetMap.set(sheet.student.toString(), sheet);
+        }
+      });
+    }
 
     const studentIds = [];
     const studentsData = [];
 
-    for (const reg of registrations) {
-      if (!reg.user) continue;
-      const sId = reg.user._id ? reg.user._id.toString() : reg.user.toString();
-      studentIds.push(sId);
+    if (registrations && Array.isArray(registrations)) {
+      for (const reg of registrations) {
+        if (!reg || !reg.user) continue;
+        const sId = reg.user._id ? reg.user._id.toString() : (typeof reg.user === 'object' ? null : reg.user.toString());
+        if (!sId) continue;
+        studentIds.push(sId);
 
-      const sheet = answersheetMap.get(sId);
-      studentsData.push({
-        id: sId,
-        name: reg.user.username || '',
-        email: reg.user.email || '',
-        completed: sheet ? !!sheet.completed : false,
-        started: !!sheet,
-        score: sheet ? (sheet.score || 0) : 0,
-        reassignEndTime: reg.reassignEndTime || (sheet ? sheet.reassignEndTime : null) || null
-      });
+        const sheet = answersheetMap.get(sId);
+        studentsData.push({
+          id: sId,
+          name: reg.user.username || '',
+          email: reg.user.email || '',
+          completed: sheet ? !!sheet.completed : false,
+          started: !!sheet,
+          score: sheet ? (sheet.score || 0) : 0,
+          reassignEndTime: reg.reassignEndTime || (sheet ? sheet.reassignEndTime : null) || null
+        });
+      }
     }
 
     res.json({ success: true, studentIds: studentIds, studentsData: studentsData });
